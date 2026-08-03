@@ -12,5 +12,4 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8081
 
-# Explicitly pass the environment variable safely via bash shell evaluation
-ENTRYPOINT ["/bin/sh", "-c", "java -Dspring.datasource.url=$DATABASE_URL -jar app.jar"]
+ENTRYPOINT ["/bin/sh", "-c", "java -Dspring.datasource.url=jdbc:$DATABASE_URL -jar app.jar"]
