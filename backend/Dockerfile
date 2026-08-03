@@ -12,4 +12,5 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8081
 
-ENTRYPOINT ["/bin/sh", "-c", "java -Dspring.datasource.url=jdbc:$DATABASE_URL -jar app.jar"]
+# Safely replace postgresql:// or postgres:// with jdbc:postgresql:// for the JVM driver
+ENTRYPOINT ["/bin/sh", "-c", "java -Dspring.datasource.url=$(echo $DATABASE_URL | sed 's|^postgres[ql]*://|jdbc:postgresql://|') -jar app.jar"]
