@@ -6,7 +6,7 @@ spring:
     active: dev
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/abber}
+    url: ${postgresql://example_postgresql_abber_user:emnCzEfy6lHKGA5IJUbETcnypidTXdhV@dpg-d9o0frjm8hqs73f7ri70-a/example_postgresql_abber}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
