@@ -1,7 +1,7 @@
 spring:
 
   datasource:
-    url: ${postgresql://example_postgresql_abber_user:emnCzEfy6lHKGA5IJUbETcnypidTXdhV@dpg-d9o0frjm8hqs73f7ri70-a/example_postgresql_abber}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
