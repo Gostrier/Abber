@@ -4,7 +4,6 @@ WORKDIR /app
 COPY . .
 
 RUN chmod +x ./mvnw
-
 RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Run the application
@@ -13,5 +12,5 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8081
 
-# Using shell form to ensure the environment variable expands properly at runtime
-ENTRYPOINT sh -c "java -Dspring.datasource.url=\$DATABASE_URL -jar app.jar"
+# Explicitly pass the environment variable safely via bash shell evaluation
+ENTRYPOINT ["/bin/sh", "-c", "java -Dspring.datasource.url=$DATABASE_URL -jar app.jar"]
