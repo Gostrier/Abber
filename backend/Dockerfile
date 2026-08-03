@@ -1,4 +1,3 @@
-# Stage 1: Build the application using Maven
 FROM eclipse-temurin:25-jdk-jammy AS build
 WORKDIR /app
 COPY . .
@@ -10,5 +9,5 @@ RUN ./mvnw clean package -DskipTests
 FROM eclipse-temurin:25-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 8081
+ENTRYPOINT ["java", "-Dspring.datasource.url=${DATABASE_URL}", "-jar", "app.jar"]
