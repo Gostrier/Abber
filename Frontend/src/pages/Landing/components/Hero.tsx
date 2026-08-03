@@ -59,7 +59,7 @@ const Hero = () => {
                     grid
                     grid-cols-1
                     lg:grid-cols-2
-                    items-center
+                    items-start
                     gap-12
                     lg:gap-20
                     px-8
@@ -164,42 +164,6 @@ const Hero = () => {
 
                     </p>
 
-                    <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-
-                        <Link to="/register" className="w-full sm:w-auto">
-
-                            <Button
-                                size="lg"
-                                fullWidth
-                            >
-
-                                Start Building
-
-                                <ArrowRight
-                                    className="ml-2"
-                                    size={22}
-                                />
-
-                            </Button>
-
-                        </Link>
-
-                        <Link to="/login" className="w-full sm:w-auto">
-
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                fullWidth
-                            >
-
-                                Explore Mentors
-
-                            </Button>
-
-                        </Link>
-
-                    </div>
-
                     <div className="mt-16 flex flex-wrap gap-10">
 
                         <div className="flex items-center gap-4">
@@ -240,7 +204,7 @@ const Hero = () => {
 
                 <motion.div
 
-                    className="flex justify-center lg:justify-end w-full"
+                    className="flex flex-col justify-center w-full"
 
                     initial={{
                         opacity: 0,
@@ -258,140 +222,39 @@ const Hero = () => {
 
                 >
 
-                    <div
-                        className="
-                            w-full
-                            max-w-lg
-                            rounded-3xl
-                            border
-                            border-white/30
-                            bg-white/80
-                            p-10
-                            shadow-2xl
-                            backdrop-blur-xl
-                        "
-                    >
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
 
-                        <div className="mb-8 flex items-center justify-between">
+                        <Link to="/register" className="w-full sm:w-auto">
 
-                            <div>
-
-                                <h3 className="text-2xl font-bold">
-
-                                    Startup Progress
-
-                                </h3>
-
-                                <p className="text-base text-slate-500">
-
-                                    AI Startup Platform
-
-                                </p>
-
-                            </div>
-
-                            <span
-                                className="
-                                    rounded-full
-                                    bg-green-100
-                                    px-4
-                                    py-1.5
-                                    text-base
-                                    font-semibold
-                                    text-green-700
-                                "
+                            <Button
+                                size="lg"
+                                fullWidth
                             >
 
-                                Active
+                                Start Building
 
-                            </span>
+                                <ArrowRight
+                                    className="ml-2"
+                                    size={22}
+                                />
 
-                        </div>
+                            </Button>
 
-                        <div className="space-y-8">
+                        </Link>
 
-                            <div>
+                        <Link to="/login" className="w-full sm:w-auto">
 
-                                <div className="mb-3 flex justify-between text-base">
+                            <Button
+                                variant="outline"
+                                size="lg"
+                                fullWidth
+                            >
 
-                                    <span>Idea Validation</span>
+                                Explore Mentors
 
-                                    <span>92%</span>
+                            </Button>
 
-                                </div>
-
-                                <div className="h-4 rounded-full bg-slate-200">
-
-                                    <div
-                                        className="
-                                            h-4
-                                            w-[92%]
-                                            rounded-full
-                                            bg-gradient-to-r
-                                            from-primary
-                                            to-violet-600
-                                        "
-                                    />
-
-                                </div>
-
-                            </div>
-
-                            <div>
-
-                                <div className="mb-3 flex justify-between text-base">
-
-                                    <span>Mentorship</span>
-
-                                    <span>81%</span>
-
-                                </div>
-
-                                <div className="h-4 rounded-full bg-slate-200">
-
-                                    <div
-                                        className="
-                                            h-4
-                                            w-[81%]
-                                            rounded-full
-                                            bg-gradient-to-r
-                                            from-primary
-                                            to-violet-600
-                                        "
-                                    />
-
-                                </div>
-
-                            </div>
-
-                            <div>
-
-                                <div className="mb-3 flex justify-between text-base">
-
-                                    <span>Funding Readiness</span>
-
-                                    <span>67%</span>
-
-                                </div>
-
-                                <div className="h-4 rounded-full bg-slate-200">
-
-                                    <div
-                                        className="
-                                            h-4
-                                            w-[67%]
-                                            rounded-full
-                                            bg-gradient-to-r
-                                            from-primary
-                                            to-violet-600
-                                        "
-                                    />
-
-                                </div>
-
-                            </div>
-
-                        </div>
+                        </Link>
 
                     </div>
 

@@ -20,6 +20,7 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+    out-of-order: true
 
   mail:
     host: smtp.gmail.com
@@ -48,6 +49,10 @@ logging:
 
 app:
   frontend-url: http://localhost:5173
+
+  admin:
+    email: ${ADMIN_EMAIL:admin@abber.local}
+    password: ${ADMIN_PASSWORD:}
 
 application:
   security:

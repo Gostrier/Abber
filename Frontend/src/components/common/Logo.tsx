@@ -10,13 +10,13 @@ interface LogoProps {
 const fallbackChar = "A";
 
 const sizeMap = {
-    sm: "h-8",
-    md: "h-10",
-    lg: "h-14",
-    xl: "h-20",
+    sm: "h-12",
+    md: "h-16",
+    lg: "h-20",
+    xl: "h-24",
 };
 
-const Logo = ({ size = "md" }: LogoProps) => {
+const Logo = ({ size = "lg" }: LogoProps) => {
     const [imgError, setImgError] = useState(false);
 
     return (
@@ -41,17 +41,17 @@ export default Logo;
 
 export const AbberBrandText = ({ size = "md", className = "" }: { size?: "sm" | "md" | "lg" | "xl"; className?: string }) => {
     const textSizes = {
-        sm: "text-2xl",
+        sm: "text-3xl",
         md: "text-4xl",
         lg: "text-5xl",
-        xl: "text-6xl",
+        xl: "text-7xl",
     };
 
     const tagSizes = {
-        sm: "text-xs",
-        md: "text-sm",
-        lg: "text-base",
-        xl: "text-lg",
+        sm: "text-sm",
+        md: "text-base",
+        lg: "text-lg",
+        xl: "text-xl",
     };
 
     return (
@@ -60,7 +60,7 @@ export const AbberBrandText = ({ size = "md", className = "" }: { size?: "sm" | 
                 ABBER
             </h1>
             <p className={`${tagSizes[size]} font-semibold tracking-[0.3em] text-slate-500 mt-1 uppercase`}>
-                Make it real
+                -- Make it real --
             </p>
         </div>
     );

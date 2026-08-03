@@ -10,6 +10,7 @@ import { AuthProvider } from "./context/AuthContext";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
+import RoleRoute from "./routes/RoleRoute";
 
 import MainLayout from "./layouts/Mainlayout";
 
@@ -32,6 +33,8 @@ const StartupStagePage = lazy(() => import("./pages/Stages/StartupStagePage"));
 const PublicChatPage = lazy(() => import("./pages/Chat/PublicChatPage"));
 const IdeasPage = lazy(() => import("./pages/Ideas/IdeasPage"));
 const ComingSoonPage = lazy(() => import("./pages/ComingSoon/ComingSoonPage"));
+const AdminDashboardPage = lazy(() => import("./pages/Admin/AdminDashboardPage"));
+const MentorDashboardPage = lazy(() => import("./pages/Admin/MentorDashboardPage"));
 
 const pageFallback = (
     <div className="flex h-screen items-center justify-center">
@@ -110,6 +113,42 @@ function App() {
                     {/* Protected */}
 
                     <Route element={<ProtectedRoute />}>
+
+                        {/* Admin */}
+                        <Route element={<RoleRoute roles={["ROLE_ADMIN"]} />}>
+
+                            <Route element={<MainLayout />}>
+
+                                <Route
+                                    path="/admin"
+                                    element={
+                                        <Suspense fallback={pageFallback}>
+                                            <AdminDashboardPage />
+                                        </Suspense>
+                                    }
+                                />
+
+                            </Route>
+
+                        </Route>
+
+                        {/* Mentor */}
+                        <Route element={<RoleRoute roles={["ROLE_MENTOR", "ROLE_ADMIN"]} />}>
+
+                            <Route element={<MainLayout />}>
+
+                                <Route
+                                    path="/mentor"
+                                    element={
+                                        <Suspense fallback={pageFallback}>
+                                            <MentorDashboardPage />
+                                        </Suspense>
+                                    }
+                                />
+
+                            </Route>
+
+                        </Route>
 
                         <Route element={<MainLayout />}>
 

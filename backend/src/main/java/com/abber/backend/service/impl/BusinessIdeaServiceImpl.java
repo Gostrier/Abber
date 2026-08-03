@@ -7,6 +7,7 @@ import com.abber.backend.entity.User;
 import com.abber.backend.exception.ResourceNotFoundException;
 import com.abber.backend.repository.BusinessIdeaRepository;
 import com.abber.backend.repository.UserRepository;
+import com.abber.backend.service.interfaces.ActivityLogService;
 import com.abber.backend.service.interfaces.BusinessIdeaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class BusinessIdeaServiceImpl implements BusinessIdeaService {
 
     private final BusinessIdeaRepository businessIdeaRepository;
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -67,7 +69,15 @@ public class BusinessIdeaServiceImpl implements BusinessIdeaService {
                 .isArchived(false)
                 .build();
 
-        return toResponse(businessIdeaRepository.save(idea));
+        BusinessIdea saved = businessIdeaRepository.save(idea);
+
+        activityLogService.record(
+                mentee.getEmail(),
+                "Business idea created",
+                mentee.getFirstName() + " " + mentee.getLastName() + " created the idea \"" + saved.getTitle() + "\"."
+        );
+
+        return toResponse(saved);
     }
 
     @Override

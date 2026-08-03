@@ -48,8 +48,8 @@ const RegisterPage = () => {
   const onSubmit = async (data: RegisterForm) => {
     try {
       await registerUser({ ...data, skills });
-      toast.success("Account created! Check your email to verify.");
-      navigate("/verify-email?sent=1");
+      toast.success("Account created! Welcome to Abber.");
+      navigate("/dashboard");
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Registration failed. Please try again.";
       toast.error(msg);

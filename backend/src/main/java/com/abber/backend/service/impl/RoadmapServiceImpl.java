@@ -14,6 +14,7 @@ import com.abber.backend.repository.BusinessIdeaRepository;
 import com.abber.backend.repository.MilestoneInstanceRepository;
 import com.abber.backend.repository.RoadmapRepository;
 import com.abber.backend.repository.UserRepository;
+import com.abber.backend.service.interfaces.ActivityLogService;
 import com.abber.backend.service.interfaces.RoadmapService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class RoadmapServiceImpl implements RoadmapService {
     private final MilestoneInstanceRepository milestoneRepository;
     private final BusinessIdeaRepository businessIdeaRepository;
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -153,6 +155,12 @@ public class RoadmapServiceImpl implements RoadmapService {
 
         if (request.getStatus() == MilestoneStatus.COMPLETED) {
             milestone.setCompletedAt(LocalDateTime.now());
+
+            activityLogService.record(
+                    milestone.getRoadmap().getBusinessIdea().getMentee().getEmail(),
+                    "Milestone completed",
+                    "Completed the milestone \"" + milestone.getTaskTitle() + "\"."
+            );
         } else {
             milestone.setCompletedAt(null);
         }

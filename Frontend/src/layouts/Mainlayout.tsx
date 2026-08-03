@@ -12,13 +12,17 @@ import {
   X,
   Bell,
   ChevronDown,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ShieldCheck,
+  Users2,
 } from "lucide-react";
 import Logo, { AbberBrandText } from "../components/common/Logo";
 import AbberAI from "../components/common/AbberAI";
 import Avatar from "../components/ui/Avatar";
 import { useAuth } from "../context/AuthContext";
 
-const sidebarLinks = [
+const baseSidebarLinks = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "My Ideas", href: "/ideas", icon: Lightbulb },
   { label: "Mentors", href: "/mentors", icon: Users },
@@ -27,12 +31,31 @@ const sidebarLinks = [
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
+const adminSidebarLinks = [
+  { label: "Admin Dashboard", href: "/admin", icon: ShieldCheck },
+];
+
+const mentorSidebarLinks = [
+  { label: "Mentees", href: "/mentor", icon: Users2 },
+];
+
 const MainLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+
+  const roles = user?.roles ?? [];
+
+  const sidebarLinks = [
+    ...(roles.includes("ROLE_ADMIN") ? adminSidebarLinks : []),
+    ...(roles.includes("ROLE_MENTOR") || roles.includes("ROLE_ADMIN")
+      ? mentorSidebarLinks
+      : []),
+    ...baseSidebarLinks,
+  ];
 
   const displayName =
     [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
@@ -47,16 +70,29 @@ const MainLayout = () => {
     <div className="flex min-h-screen bg-gradient-to-br from-blue-950 via-indigo-950 to-purple-950">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-80 transform border-r border-white/10 bg-white/5 backdrop-blur-2xl transition-transform duration-300 lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-40 transform border-r border-white/10 bg-white/5 backdrop-blur-2xl transition-all duration-300 lg:translate-x-0 ${
+          collapsed ? "w-24" : "w-80"
+        } ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="flex h-24 items-center gap-4 border-b border-white/10 px-8">
-          <Logo size="sm" />
-          <AbberBrandText size="md" />
+        <div
+          className={`flex h-24 items-center border-b border-white/10 ${
+            collapsed ? "flex-col justify-center gap-2 px-2" : "justify-between gap-4 px-6"
+          }`}
+        >
+          <div className={collapsed ? "flex justify-center" : "flex items-center gap-4"}>
+            <Logo size={collapsed ? "sm" : "lg"} />
+            {!collapsed && <AbberBrandText size="md" />}
+          </div>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="rounded-xl p-2.5 text-blue-200 transition-all hover:bg-white/10 hover:text-white"
+          >
+            {collapsed ? <PanelLeftOpen size={22} /> : <PanelLeftClose size={22} />}
+          </button>
         </div>
 
-        <nav className="mt-8 space-y-2 px-6">
+        <nav className={`mt-8 space-y-2 ${collapsed ? "px-3" : "px-6"}`}>
           {sidebarLinks.map((link) => {
             const Icon = link.icon;
             const active = location.pathname === link.href;
@@ -65,14 +101,17 @@ const MainLayout = () => {
                 key={link.href}
                 to={link.href}
                 onClick={() => setSidebarOpen(false)}
+                title={collapsed ? link.label : undefined}
                 className={`flex items-center gap-4 rounded-xl px-5 py-4 text-base font-medium transition-all ${
+                  collapsed ? "justify-center px-3" : ""
+                } ${
                   active
                     ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-md"
                     : "text-blue-100/70 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <Icon size={24} />
-                {link.label}
+                {!collapsed && link.label}
               </Link>
             );
           })}
@@ -81,10 +120,13 @@ const MainLayout = () => {
         <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 p-6">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-4 rounded-xl px-5 py-4 text-base font-medium text-red-300 hover:bg-white/10 hover:text-red-200 transition-all"
+            title={collapsed ? "Sign Out" : undefined}
+            className={`flex w-full items-center gap-4 rounded-xl px-5 py-4 text-base font-medium text-red-300 hover:bg-white/10 hover:text-red-200 transition-all ${
+              collapsed ? "justify-center px-3" : ""
+            }`}
           >
             <LogOut size={24} />
-            Sign Out
+            {!collapsed && "Sign Out"}
           </button>
         </div>
       </aside>
@@ -98,7 +140,7 @@ const MainLayout = () => {
       )}
 
       {/* Main */}
-      <div className="flex flex-1 flex-col lg:ml-80">
+      <div className={`flex flex-1 flex-col ${collapsed ? "lg:ml-24" : "lg:ml-80"}`}>
         {/* Top Bar */}
         <header className="sticky top-0 z-20 flex h-24 items-center justify-between border-b border-white/10 bg-white/5 backdrop-blur-2xl px-8">
           <button

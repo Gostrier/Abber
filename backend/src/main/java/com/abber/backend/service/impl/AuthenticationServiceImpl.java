@@ -15,6 +15,7 @@ import com.abber.backend.repository.RoleRepository;
 import com.abber.backend.repository.UserRepository;
 import com.abber.backend.repository.VerificationTokenRepository;
 import com.abber.backend.security.jwt.JwtService;
+import com.abber.backend.service.interfaces.ActivityLogService;
 import com.abber.backend.service.interfaces.AuthenticationService;
 import com.abber.backend.service.interfaces.EmailService;
 import com.abber.backend.util.TokenHashingUtil;
@@ -34,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -46,6 +48,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final VerificationTokenServiceImpl verificationTokenService;
     private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
+    private final ActivityLogService activityLogService;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
@@ -73,7 +76,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .email(request.getEmail().trim().toLowerCase())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .isActive(true)
-                .emailVerified(false)
+                .emailVerified(true)
                 .phoneNumber(request.getPhoneNumber())
                 .county(request.getCounty())
                 .town(request.getTown())
@@ -84,12 +87,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User savedUser = userRepository.save(user);
 
-        verificationTokenService.createVerificationToken(savedUser);
+        activityLogService.record(
+                savedUser.getEmail(),
+                "User registered",
+                savedUser.getFirstName() + " " + savedUser.getLastName() + " created an account."
+        );
 
-        return AuthResponse.builder()
-                .message("Registration successful. Please check your email to verify your account.")
-                .email(savedUser.getEmail())
-                .build();
+        String accessToken = jwtService.generateAccessToken(savedUser.getEmail());
+        String refreshToken = jwtService.generateRefreshToken(savedUser.getEmail());
+
+        persistRefreshToken(savedUser, refreshToken);
+
+        return buildAuthResponse(
+                savedUser,
+                accessToken,
+                refreshToken,
+                "Registration successful. Welcome to Abber!"
+        );
     }
 
     @Override
@@ -124,20 +138,31 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             );
         }
 
-        if (!Boolean.TRUE.equals(user.getEmailVerified())) {
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
             throw new IllegalStateException(
-                    "Please verify your email before logging in."
+                    "Your account has been deactivated. Contact support."
             );
         }
 
         user.recordSuccessfulLogin();
+
+        activityLogService.record(
+                user.getEmail(),
+                "User logged in",
+                user.getFirstName() + " " + user.getLastName() + " signed in."
+        );
 
         String accessToken = jwtService.generateAccessToken(user.getEmail());
         String refreshToken = jwtService.generateRefreshToken(user.getEmail());
 
         persistRefreshToken(user, refreshToken);
 
-        return buildAuthResponse(user, accessToken, refreshToken);
+        return buildAuthResponse(
+                user,
+                accessToken,
+                refreshToken,
+                "Login successful."
+        );
     }
 
     @Override
@@ -167,7 +192,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         persistRefreshToken(user, newRefreshToken);
 
-        return buildAuthResponse(user, newAccessToken, newRefreshToken);
+        return buildAuthResponse(
+                user,
+                newAccessToken,
+                newRefreshToken,
+                "Tokens refreshed."
+        );
     }
 
     @Override
@@ -301,11 +331,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(user);
     }
 
-    private AuthResponse buildAuthResponse(User user, String accessToken, String refreshToken) {
+    private AuthResponse buildAuthResponse(User user, String accessToken, String refreshToken, String message) {
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .tokenType("Bearer")
+                .message(message)
                 .userId(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())

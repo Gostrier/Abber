@@ -29,8 +29,9 @@ const LoginPage = () => {
       await login(data);
       toast.success("Welcome back!");
       navigate("/dashboard");
-    } catch {
-      toast.error("Invalid email or password.");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || "Invalid email or password.";
+      toast.error(msg);
     }
   };
 
