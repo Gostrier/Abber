@@ -1,0 +1,32 @@
+# Environment files (secrets)
+.env
+.env.*
+!.env.example
+
+# JVM crash dumps
+hs_err_pid*.log
+replay_pid*.log
+
+# Application logs
+logs/
+*.log
+
+# Build output
+target/
+dist/
+build/
+
+# Java build / IDE
+.m2/
+.idea/
+*.iml
+.classpath
+.settings/
+.vscode/
+.sts4-cache
+
+# Node
+node_modules/
+
+# Local scratch files
+Abberpostgres.session.sql

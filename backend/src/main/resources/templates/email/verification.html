@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+
+        body{
+            font-family:Arial,Helvetica,sans-serif;
+            background:#f5f7fb;
+            margin:0;
+            padding:40px;
+        }
+
+        .container{
+            max-width:650px;
+            margin:auto;
+            background:white;
+            padding:40px;
+            border-radius:10px;
+            box-shadow:0 2px 10px rgba(0,0,0,.08);
+        }
+
+        .button{
+            display:inline-block;
+            background:#2563eb;
+            color:white;
+            text-decoration:none;
+            padding:14px 24px;
+            border-radius:6px;
+            margin-top:20px;
+        }
+
+        .footer{
+            margin-top:35px;
+            color:#777;
+            font-size:13px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Welcome to Abber!</h2>
+
+    <p>Hello <strong th:text="${name}"></strong>,</p>
+
+    <p>
+        Thank you for creating an Abber account.
+        Please verify your email address to activate your account.
+    </p>
+
+    <a
+            th:href="${verificationLink}"
+            class="button">
+
+        Verify Email
+
+    </a>
+
+    <p style="margin-top:30px;">
+        If the button doesn't work,
+        copy the link below.
+    </p>
+
+    <p
+            th:text="${verificationLink}">
+    </p>
+
+    <div class="footer">
+
+        This email was sent automatically by Abber.
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

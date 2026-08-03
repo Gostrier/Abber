@@ -1,0 +1,267 @@
+/* ==========================================================
+   ABBER EMAIL STYLESHEET
+   Version: 1.0
+   ========================================================== */
+
+/* ---------- RESET ---------- */
+
+body,
+table,
+td,
+a {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+table,
+td {
+    mso-table-lspace: 0;
+    mso-table-rspace: 0;
+}
+
+img {
+    border: 0;
+    outline: none;
+    text-decoration: none;
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background: #f5f7fb;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #2d3748;
+}
+
+/* ---------- WRAPPER ---------- */
+
+.email-wrapper {
+    width: 100%;
+    background: #f5f7fb;
+    padding: 40px 20px;
+}
+
+.email-container {
+    max-width: 650px;
+    margin: auto;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+
+/* ---------- HEADER ---------- */
+
+.email-header {
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #1d4ed8
+    );
+    text-align: center;
+    padding: 40px 30px;
+}
+
+.email-logo {
+    width: 120px;
+    margin: auto;
+}
+
+.email-title {
+    color: white;
+    margin-top: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* ---------- BODY ---------- */
+
+.email-body {
+    padding: 45px;
+}
+
+.email-body h1 {
+    margin-top: 0;
+    color: #1e293b;
+    font-size: 28px;
+}
+
+.email-body h2 {
+    color: #1e293b;
+    font-size: 22px;
+}
+
+.email-body h3 {
+    color: #1e293b;
+}
+
+.email-body p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #4b5563;
+}
+
+.email-body ul {
+    padding-left: 20px;
+}
+
+.email-body li {
+    margin-bottom: 8px;
+}
+
+/* ---------- BUTTON ---------- */
+
+.button-wrapper {
+    text-align: center;
+    margin: 35px 0;
+}
+
+.btn-primary {
+    display: inline-block;
+    padding: 15px 34px;
+    background: #2563eb;
+    color: white !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-success {
+    display: inline-block;
+    padding: 15px 34px;
+    background: #16a34a;
+    color: white !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.btn-danger {
+    display: inline-block;
+    padding: 15px 34px;
+    background: #dc2626;
+    color: white !important;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+/* ---------- INFO BOX ---------- */
+
+.info-box {
+    background: #eff6ff;
+    border-left: 5px solid #2563eb;
+    padding: 18px;
+    margin: 30px 0;
+    border-radius: 6px;
+}
+
+.success-box {
+    background: #ecfdf5;
+    border-left: 5px solid #22c55e;
+    padding: 18px;
+    margin: 30px 0;
+}
+
+.warning-box {
+    background: #fff7ed;
+    border-left: 5px solid #f97316;
+    padding: 18px;
+    margin: 30px 0;
+}
+
+.error-box {
+    background: #fef2f2;
+    border-left: 5px solid #ef4444;
+    padding: 18px;
+    margin: 30px 0;
+}
+
+/* ---------- DIVIDER ---------- */
+
+.divider {
+    border-top: 1px solid #e5e7eb;
+    margin: 35px 0;
+}
+
+/* ---------- FOOTER ---------- */
+
+.email-footer {
+    background: #f8fafc;
+    padding: 30px;
+    text-align: center;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.email-footer a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.social-links {
+    margin-top: 18px;
+}
+
+.social-links a {
+    margin: 0 8px;
+}
+
+/* ---------- SMALL TEXT ---------- */
+
+.small-text {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.muted {
+    color: #9ca3af;
+}
+
+/* ---------- CODE ---------- */
+
+.code-box {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: Consolas, monospace;
+    word-break: break-all;
+    font-size: 14px;
+}
+
+/* ---------- MOBILE ---------- */
+
+@media screen and (max-width: 600px) {
+
+    .email-wrapper {
+        padding: 15px;
+    }
+
+    .email-body {
+        padding: 25px;
+    }
+
+    .email-title {
+        font-size: 24px;
+    }
+
+    .email-body h1 {
+        font-size: 24px;
+    }
+
+    .btn-primary,
+    .btn-success,
+    .btn-danger {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
