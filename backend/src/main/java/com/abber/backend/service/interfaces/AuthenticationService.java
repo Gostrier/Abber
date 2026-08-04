@@ -17,10 +17,6 @@ public interface AuthenticationService {
 
     void logout(String refreshToken);
 
-    void verifyEmail(String token);
-
-    void resendVerificationToken(String email);
-
     void forgotPassword(ForgotPasswordRequest request);
 
     void resetPassword(ResetPasswordRequest request);

@@ -18,9 +18,6 @@ import LandingPage from "./pages/Landing/LandingPage";
 
 import LoginPage from "./pages/Landing/auth/LoginPage";
 import RegisterPage from "./pages/Landing/auth/RegisterPage";
-import VerifyEmailPage from "./pages/Landing/auth/VerifyEmailPage";
-import VerificationSuccessPage from "./pages/Landing/auth/VerificationSuccessPage";
-import ResendVerificationPage from "./pages/Landing/auth/ResendVerificationPage";
 import ForgotPasswordPage from "./pages/Landing/auth/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/Landing/auth/ResetPasswordPage";
 
@@ -81,21 +78,6 @@ function App() {
                         <Route
                             path="/register"
                             element={<RegisterPage />}
-                        />
-
-                        <Route
-                            path="/verify-email"
-                            element={<VerifyEmailPage />}
-                        />
-
-                        <Route
-                            path="/verification-success"
-                            element={<VerificationSuccessPage />}
-                        />
-
-                        <Route
-                            path="/resend-verification"
-                            element={<ResendVerificationPage />}
                         />
 
                         <Route

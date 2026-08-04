@@ -8,12 +8,10 @@ import com.abber.backend.dto.request.ResetPasswordRequest;
 import com.abber.backend.dto.response.AuthResponse;
 import com.abber.backend.entity.Role;
 import com.abber.backend.entity.User;
-import com.abber.backend.entity.VerificationToken;
 import com.abber.backend.enums.RoleType;
 import com.abber.backend.exception.ResourceNotFoundException;
 import com.abber.backend.repository.RoleRepository;
 import com.abber.backend.repository.UserRepository;
-import com.abber.backend.repository.VerificationTokenRepository;
 import com.abber.backend.security.jwt.JwtService;
 import com.abber.backend.service.interfaces.ActivityLogService;
 import com.abber.backend.service.interfaces.AuthenticationService;
@@ -45,8 +43,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final VerificationTokenServiceImpl verificationTokenService;
-    private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
     private final ActivityLogService activityLogService;
 
@@ -213,40 +209,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     user.setRefreshTokenExpiry(null);
                     userRepository.save(user);
                 });
-    }
-
-    @Override
-    public void verifyEmail(String token) {
-
-        VerificationToken verificationToken =
-                verificationTokenService.validateToken(token);
-
-        User user = verificationToken.getUser();
-
-        user.setEmailVerified(true);
-        user.setIsActive(true);
-
-        userRepository.save(user);
-
-        verificationTokenService.deleteToken(verificationToken);
-
-        emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName());
-    }
-
-    @Override
-    public void resendVerificationToken(String email) {
-
-        userRepository.findByEmailIgnoreCase(email).ifPresent(user -> {
-
-            if (Boolean.TRUE.equals(user.getEmailVerified())) {
-                return;
-            }
-
-            verificationTokenRepository.findByUser(user)
-                    .ifPresent(verificationTokenRepository::delete);
-
-            verificationTokenService.createVerificationToken(user);
-        });
     }
 
     @Override

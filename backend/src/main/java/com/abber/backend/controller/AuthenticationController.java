@@ -6,7 +6,6 @@ import com.abber.backend.dto.request.LoginRequest;
 import com.abber.backend.dto.request.LogoutRequest;
 import com.abber.backend.dto.request.RefreshTokenRequest;
 import com.abber.backend.dto.request.RegisterRequest;
-import com.abber.backend.dto.request.ResendVerificationRequest;
 import com.abber.backend.dto.request.ResetPasswordRequest;
 import com.abber.backend.dto.response.AuthResponse;
 import com.abber.backend.security.CurrentUserService;
@@ -35,18 +34,6 @@ public class AuthenticationController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
-    }
-
-    @GetMapping({"/verify", "/verify-email"})
-    public ResponseEntity<String> verifyEmail(
-            @RequestParam String token
-    ) {
-
-        authenticationService.verifyEmail(token);
-
-        return ResponseEntity.ok(
-                "Email verified successfully."
-        );
     }
 
     @PostMapping("/login")
@@ -110,16 +97,6 @@ public class AuthenticationController {
         );
 
         return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/resend-verification")
-    public ResponseEntity<String> resendVerification(
-            @Valid @RequestBody ResendVerificationRequest request
-    ) {
-
-        authenticationService.resendVerificationToken(request.getEmail());
-
-        return ResponseEntity.ok("Verification email resent.");
     }
 
     @GetMapping("/ping")

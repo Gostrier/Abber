@@ -65,19 +65,6 @@ export const refreshTokenRequest = async (
     return response.data;
 };
 
-export const resendVerification = async (
-    email: string
-): Promise<void> => {
-
-    await api.post(
-        "/auth/resend-verification",
-        {
-            email,
-        }
-    );
-
-};
-
 export const logoutRequest = async (
     refreshToken: string
 ): Promise<void> => {

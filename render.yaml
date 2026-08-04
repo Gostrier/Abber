@@ -44,9 +44,9 @@ services:
       - key: ADMIN_PASSWORD
         generateValue: true
       - key: APP_FRONTEND_URL
-        value: http://localhost:5173
+        value: https://abber.netlify.app
       - key: APP_CORS_ALLOWED_ORIGINS
-        value: http://localhost:5173
+        value: https://abber.netlify.app,http://localhost:5173
       - key: MAIL_USERNAME
         value: ""
       - key: MAIL_PASSWORD

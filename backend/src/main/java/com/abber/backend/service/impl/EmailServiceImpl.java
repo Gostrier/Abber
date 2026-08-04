@@ -77,54 +77,6 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async
-    public void sendVerificationEmail(
-            String recipientEmail,
-            String recipientName,
-            String verificationLink
-    ) {
-
-        String html = """
-                <html>
-                <body style="font-family:Arial">
-
-                    <h2>Welcome to Abber</h2>
-
-                    <p>Hello %s,</p>
-
-                    <p>
-                        Thank you for joining Abber.
-                        Please verify your email by clicking
-                        the button below.
-                    </p>
-
-                    <a href="%s"
-                       style="
-                            background:#2563eb;
-                            color:white;
-                            padding:12px 20px;
-                            text-decoration:none;
-                            border-radius:6px;">
-                        Verify Email
-                    </a>
-
-                    <p>
-                        If you didn't register,
-                        simply ignore this email.
-                    </p>
-
-                </body>
-                </html>
-                """.formatted(recipientName, verificationLink);
-
-        sendHtmlEmail(
-                recipientEmail,
-                "Verify your Abber account",
-                html
-        );
-    }
-
-    @Override
-    @Async
     public void sendPasswordResetEmail(
             String recipientEmail,
             String recipientName,
@@ -144,31 +96,6 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(
                 recipientEmail,
                 "Reset Password",
-                html
-        );
-    }
-
-    @Override
-    @Async
-    public void sendWelcomeEmail(
-            String recipientEmail,
-            String recipientName
-    ) {
-
-        String html = """
-                <h2>Welcome to Abber</h2>
-
-                <p>Hello %s,</p>
-
-                <p>
-                    Your email has been verified successfully.
-                    Welcome to the Abber community.
-                </p>
-                """.formatted(recipientName);
-
-        sendHtmlEmail(
-                recipientEmail,
-                "Welcome to Abber",
                 html
         );
     }

@@ -1,0 +1,5 @@
+ALTER TABLE users
+    DROP COLUMN IF EXISTS verification_token,
+    DROP COLUMN IF EXISTS verification_token_expiry;
+
+DROP TABLE IF EXISTS verification_tokens;

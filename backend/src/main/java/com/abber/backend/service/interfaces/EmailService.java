@@ -14,21 +14,10 @@ public interface EmailService {
             String htmlContent
     );
 
-    void sendVerificationEmail(
-            String recipientEmail,
-            String recipientName,
-            String verificationLink
-    );
-
     void sendPasswordResetEmail(
             String recipientEmail,
             String recipientName,
             String resetLink
-    );
-
-    void sendWelcomeEmail(
-            String recipientEmail,
-            String recipientName
     );
 
     void sendMentorInvitation(

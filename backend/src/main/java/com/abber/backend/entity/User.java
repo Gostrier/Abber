@@ -108,12 +108,6 @@ public class User implements UserDetails {
     @Column(name = "refresh_token_expiry")
     private LocalDateTime refreshTokenExpiry;
 
-    @Column(name = "verification_token", length = 255)
-    private String verificationToken;
-
-    @Column(name = "verification_token_expiry")
-    private LocalDateTime verificationTokenExpiry;
-
     @Column(name = "password_reset_token", length = 255)
     private String passwordResetToken;
 
