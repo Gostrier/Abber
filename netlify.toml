@@ -1,0 +1,9 @@
+[build]
+  base = "frontend"
+  command = "npm run build" # or npm run build:prod depending on your package.json script
+  publish = "frontend/dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
