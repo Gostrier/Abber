@@ -3,6 +3,12 @@
   command = "npm run build" # or npm run build:prod depending on your package.json script
   publish = "dist"
 
+[build.environment]
+  # Backend API base URL. All API calls must hit the /api prefix (e.g. /api/auth/register).
+  # If this is set in the Netlify dashboard it OVERRIDES this value, so make sure the
+  # dashboard value ends with /api too.
+  VITE_API_URL = "https://abber.onrender.com/api"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

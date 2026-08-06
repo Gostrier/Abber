@@ -7,7 +7,13 @@ import {
     removeTokens,
 } from "../utils/tokens";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
+const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
+
+const normalizedApiUrl = rawApiUrl.replace(/\/+$/, "");
+
+const API_URL = /\/api(\/|$)/.test(normalizedApiUrl)
+    ? normalizedApiUrl
+    : `${normalizedApiUrl}/api`;
 
 const api = axios.create({
 
