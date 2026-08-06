@@ -19,12 +19,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig { // <-- Removed the incorrect @Bean from here
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
-
     private final RateLimitFilter rateLimitFilter;
 
     @Bean
@@ -32,7 +30,6 @@ public class SecurityConfig {
             throws Exception {
 
         http
-
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
@@ -44,8 +41,9 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // Match whatever your controller base path is. 
+                        // If your controller is @RequestMapping("/auth"), change this to "/auth/**"
+                        .requestMatchers("/auth/**", "/api/auth/**").permitAll()
 
                         .requestMatchers(
                                 "/v3/api-docs/**",
