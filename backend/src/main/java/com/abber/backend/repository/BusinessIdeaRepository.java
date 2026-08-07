@@ -15,4 +15,6 @@ public interface BusinessIdeaRepository extends JpaRepository<BusinessIdea, Long
 
     long countByMenteeAndIsArchivedFalse(User mentee);
 
+    long countByMenteeIdInAndIsArchivedFalse(List<Long> menteeIds);
+
 }

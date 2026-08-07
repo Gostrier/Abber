@@ -6,10 +6,12 @@ import com.abber.backend.dto.request.LoginRequest;
 import com.abber.backend.dto.request.RegisterRequest;
 import com.abber.backend.dto.request.ResetPasswordRequest;
 import com.abber.backend.dto.response.AuthResponse;
+import com.abber.backend.entity.MenteeProfile;
 import com.abber.backend.entity.Role;
 import com.abber.backend.entity.User;
 import com.abber.backend.enums.RoleType;
 import com.abber.backend.exception.ResourceNotFoundException;
+import com.abber.backend.repository.MenteeRepository;
 import com.abber.backend.repository.RoleRepository;
 import com.abber.backend.repository.UserRepository;
 import com.abber.backend.security.jwt.JwtService;
@@ -45,6 +47,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final ActivityLogService activityLogService;
+    private final MenteeRepository menteeRepository;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
@@ -82,6 +85,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.addRole(menteeRole);
 
         User savedUser = userRepository.save(user);
+
+        menteeRepository.save(MenteeProfile.builder()
+                .user(savedUser)
+                .startupStage("IDEATION")
+                .interests(request.getSkills() != null
+                        ? String.join(",", request.getSkills())
+                        : null)
+                .build());
 
         activityLogService.record(
                 savedUser.getEmail(),

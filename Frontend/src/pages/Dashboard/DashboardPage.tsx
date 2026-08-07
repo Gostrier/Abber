@@ -127,6 +127,12 @@ const DashboardPage = () => {
   const milestones: Milestone[] = latestRoadmap?.milestones ?? [];
   const progress = latestRoadmap?.overallCompletionPercentage ?? 0;
 
+  const stageOrder = ["IDEATION", "VALIDATION", "MVP_LAUNCH", "SCALING"];
+  const currentStageIndex = latestIdea
+    ? Math.max(0, stageOrder.indexOf(latestIdea.executionStage))
+    : 0;
+  const overallProgress = Math.round(summary?.overallProgress ?? 0);
+
   const stats: Stat[] = [
     {
       icon: Lightbulb,
@@ -299,6 +305,65 @@ const DashboardPage = () => {
               </motion.div>
             );
           })}
+        </motion.div>
+
+        {/* Startup Progress */}
+        <motion.div variants={itemAnim}>
+          <Card className="border-white/10 bg-white/10 backdrop-blur-xl p-8 lg:p-10 rounded-2xl">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-3xl font-bold text-white">Startup Progress</h2>
+                <p className="mt-2 text-base text-blue-200">
+                  Your journey from idea to scaling startup.
+                </p>
+              </div>
+              <div className="flex items-end gap-3">
+                <span className="text-6xl font-bold text-white tabular-nums">
+                  {overallProgress}%
+                </span>
+                <span className="pb-2 text-base text-blue-200">overall</span>
+              </div>
+            </div>
+
+            <div className="mt-8 h-3 rounded-full bg-white/10 overflow-hidden">
+              <motion.div
+                className="h-3 rounded-full bg-gradient-to-r from-blue-500 via-violet-500 to-emerald-500"
+                initial={{ width: 0 }}
+                whileInView={{ width: `${Math.min(100, Math.max(0, overallProgress))}%` }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+              />
+            </div>
+
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {startupStages.map((stage, index) => {
+                const Icon = stage.icon;
+                const reached = index <= currentStageIndex;
+                const isCurrent = index === currentStageIndex;
+                return (
+                  <Link
+                    key={stage.label}
+                    to={stage.href}
+                    className={`group relative overflow-hidden rounded-2xl border p-6 transition-all ${
+                      reached
+                        ? "border-white/20 bg-white/10 hover:bg-white/20"
+                        : "border-white/5 bg-white/5 opacity-50 hover:opacity-80"
+                    }`}
+                  >
+                    <div className={`inline-flex rounded-xl p-3 ${reached ? `bg-gradient-to-br ${stage.color}` : "bg-white/10"}`}>
+                      <Icon size={22} className={reached ? "text-white" : "text-slate-400"} />
+                    </div>
+                    <div className="mt-4 flex items-center gap-3">
+                      <p className="text-lg font-bold text-white">{stage.label}</p>
+                      {isCurrent && <Badge variant="warning">Current</Badge>}
+                      {reached && !isCurrent && <Badge variant="success">Done</Badge>}
+                    </div>
+                    <p className="mt-1 text-sm text-blue-200">{stage.desc}</p>
+                  </Link>
+                );
+              })}
+            </div>
+          </Card>
         </motion.div>
 
         {/* Startup Stages */}

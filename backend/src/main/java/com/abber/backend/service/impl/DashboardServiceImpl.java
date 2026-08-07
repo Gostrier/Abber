@@ -7,11 +7,16 @@ import com.abber.backend.dto.response.MilestoneResponse;
 import com.abber.backend.dto.response.RecentActivityResponse;
 import com.abber.backend.entity.BusinessIdea;
 import com.abber.backend.entity.BusinessRoadmap;
+import com.abber.backend.entity.MentorProfile;
+import com.abber.backend.entity.MentorshipEngagement;
 import com.abber.backend.entity.MilestoneInstance;
 import com.abber.backend.entity.User;
+import com.abber.backend.enums.EngagementStatus;
 import com.abber.backend.enums.MilestoneStatus;
 import com.abber.backend.exception.ResourceNotFoundException;
 import com.abber.backend.repository.BusinessIdeaRepository;
+import com.abber.backend.repository.MentorRepository;
+import com.abber.backend.repository.MentorshipEngagementRepository;
 import com.abber.backend.repository.MilestoneInstanceRepository;
 import com.abber.backend.repository.RoadmapRepository;
 import com.abber.backend.repository.UserRepository;
@@ -35,6 +40,8 @@ public class DashboardServiceImpl implements DashboardService {
     private final RoadmapRepository roadmapRepository;
     private final MilestoneInstanceRepository milestoneRepository;
     private final UserRepository userRepository;
+    private final MentorRepository mentorRepository;
+    private final MentorshipEngagementRepository engagementRepository;
 
     @Override
     public DashboardSummaryResponse getSummary(Long userId) {
@@ -108,11 +115,35 @@ public class DashboardServiceImpl implements DashboardService {
                 .comparing(RecentActivityResponse::getTimestamp)
                 .reversed());
 
+        String mentorName = null;
+        String mentorSpecialty = null;
+
+        MentorshipEngagement engagement = engagementRepository
+                .findByMenteeIdAndStatus(user.getId(), EngagementStatus.ACTIVE)
+                .orElse(null);
+
+        if (engagement != null) {
+
+            MentorProfile mentorProfile = mentorRepository
+                    .findByUserId(engagement.getMentor().getId())
+                    .orElse(null);
+
+            User mentor = engagement.getMentor();
+
+            mentorName = mentor.getFirstName() + " " + mentor.getLastName();
+
+            mentorSpecialty = mentorProfile != null && mentorProfile.getSpecialty() != null
+                    ? mentorProfile.getSpecialty()
+                    : "Startup Mentor";
+        }
+
         return DashboardSummaryResponse.builder()
                 .activeIdeasCount(ideas.size())
                 .completedMilestonesCount(completedMilestones)
                 .totalMilestonesCount(totalMilestones)
                 .overallProgress(overallProgress)
+                .mentorName(mentorName)
+                .mentorSpecialty(mentorSpecialty)
                 .latestIdea(ideas.isEmpty() ? null : toIdeaResponse(ideas.get(0)))
                 .latestRoadmap(latestRoadmap == null ? null : toRoadmapResponse(latestRoadmap))
                 .recentActivity(activities.stream().limit(8).toList())

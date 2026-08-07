@@ -55,6 +55,8 @@ public class SecurityConfig { // <-- Removed the incorrect @Bean from here
 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                        .requestMatchers("/api/public/**").permitAll()
+
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
 

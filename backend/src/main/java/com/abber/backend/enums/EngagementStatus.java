@@ -1,5 +1,7 @@
 package com.abber.backend.enums;
 
-public class EngagementStatus {
-    
+public enum EngagementStatus {
+    ACTIVE,
+    PAUSED,
+    COMPLETED
 }

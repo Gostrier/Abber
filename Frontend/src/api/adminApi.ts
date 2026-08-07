@@ -108,6 +108,42 @@ export interface UserProgressResponse {
 
 export type RoleAction = "GRANT" | "REVOKE";
 
+export interface MentorProfileResponse {
+    mentorId: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    specialty: string | null;
+    bio: string | null;
+    yearsOfExperience: number | null;
+    company: string | null;
+    location: string | null;
+    isAvailable: boolean;
+    isFeatured: boolean;
+    menteeCount: number;
+    ideasMentored: number;
+}
+
+export interface CreateMentorRequest {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    specialty?: string;
+    bio?: string;
+    yearsOfExperience?: number;
+    company?: string;
+    county?: string;
+    town?: string;
+    location?: string;
+    isFeatured?: boolean;
+}
+
+export interface AssignMentorRequest {
+    mentorId: number;
+    menteeId: number;
+}
+
 export const getAdminStats = async (): Promise<AdminStatsResponse> => {
     const response = await api.get<AdminStatsResponse>("/admin/stats");
     return response.data;
@@ -141,4 +177,37 @@ export const updateUserRole = async (
         roleName,
         action,
     });
+};
+
+export const getAdminMentors = async (): Promise<MentorProfileResponse[]> => {
+    const response = await api.get<MentorProfileResponse[]>("/admin/mentors");
+    return response.data;
+};
+
+export const createMentor = async (
+    payload: CreateMentorRequest
+): Promise<MentorProfileResponse> => {
+    const response = await api.post<MentorProfileResponse>("/admin/mentors", payload);
+    return response.data;
+};
+
+export const getMentorMentees = async (
+    mentorId: number
+): Promise<AdminUserResponse[]> => {
+    const response = await api.get<AdminUserResponse[]>(
+        `/admin/mentors/${mentorId}/mentees`
+    );
+    return response.data;
+};
+
+export const assignMentor = async (
+    payload: AssignMentorRequest
+): Promise<void> => {
+    await api.post("/admin/assignments", payload);
+};
+
+export const unassignMentor = async (
+    payload: AssignMentorRequest
+): Promise<void> => {
+    await api.delete("/admin/assignments", { data: payload });
 };

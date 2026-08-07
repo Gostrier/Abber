@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Logo, { AbberBrandText } from "../../../components/common/Logo";
 
 const Footer = () => {
@@ -34,10 +35,18 @@ const Footer = () => {
 
                     <ul className="space-y-4 text-base">
 
-                        <li className="hover:text-white cursor-pointer transition-colors">Features</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Mentorship</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Community</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Dashboard</li>
+                        <li>
+                            <a href="#features" className="hover:text-white transition-colors">Features</a>
+                        </li>
+                        <li>
+                            <a href="#mentors" className="hover:text-white transition-colors">Mentorship</a>
+                        </li>
+                        <li>
+                            <a href="#journey" className="hover:text-white transition-colors">Community</a>
+                        </li>
+                        <li>
+                            <Link to="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
+                        </li>
 
                     </ul>
 
@@ -53,10 +62,18 @@ const Footer = () => {
 
                     <ul className="space-y-4 text-base">
 
-                        <li className="hover:text-white cursor-pointer transition-colors">Blog</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Help Center</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Documentation</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Contact</li>
+                        <li>
+                            <a href="#journey" className="hover:text-white transition-colors">Blog</a>
+                        </li>
+                        <li>
+                            <a href="#features" className="hover:text-white transition-colors">Help Center</a>
+                        </li>
+                        <li>
+                            <a href="#mentors" className="hover:text-white transition-colors">Documentation</a>
+                        </li>
+                        <li>
+                            <Link to="/register" className="hover:text-white transition-colors">Contact</Link>
+                        </li>
 
                     </ul>
 
@@ -72,9 +89,9 @@ const Footer = () => {
 
                     <ul className="space-y-4 text-base">
 
-                        <li className="hover:text-white cursor-pointer transition-colors">Privacy Policy</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Terms of Service</li>
-                        <li className="hover:text-white cursor-pointer transition-colors">Cookies</li>
+                        <li className="hover:text-white transition-colors">Privacy Policy</li>
+                        <li className="hover:text-white transition-colors">Terms of Service</li>
+                        <li className="hover:text-white transition-colors">Cookies</li>
 
                     </ul>
 
@@ -84,7 +101,14 @@ const Footer = () => {
 
             <div className="border-t border-slate-700 py-8 text-center text-base">
 
-                <p>© 2026 Abber. All rights reserved. <span className="text-slate-500">— Make it real.</span></p>
+                <p>© 2026 Abber. All rights reserved.{" "}
+                    <Link
+                        to="/admin"
+                        className="text-slate-500 hover:text-white transition-colors font-medium"
+                    >
+                        — Make it real.
+                    </Link>
+                </p>
 
             </div>
 

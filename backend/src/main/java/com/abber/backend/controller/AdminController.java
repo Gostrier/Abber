@@ -1,14 +1,18 @@
 package com.abber.backend.controller;
 
+import com.abber.backend.dto.request.AssignMentorRequest;
+import com.abber.backend.dto.request.CreateMentorRequest;
 import com.abber.backend.dto.request.RoleUpdateRequest;
 import com.abber.backend.dto.response.ActivityLogResponse;
 import com.abber.backend.dto.response.AdminStatsResponse;
 import com.abber.backend.dto.response.AdminUserResponse;
+import com.abber.backend.dto.response.MentorProfileResponse;
 import com.abber.backend.dto.response.UserProgressResponse;
 import com.abber.backend.enums.RoleType;
 import com.abber.backend.service.interfaces.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -63,6 +67,49 @@ public class AdminController {
         adminService.updateUserRole(userId, roleName, grant);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/mentors")
+    public ResponseEntity<MentorProfileResponse> createMentor(
+            @Valid @RequestBody CreateMentorRequest request
+    ) {
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(adminService.createMentor(request));
+    }
+
+    @GetMapping("/mentors")
+    public ResponseEntity<List<MentorProfileResponse>> getMentors() {
+
+        return ResponseEntity.ok(adminService.getMentors());
+    }
+
+    @GetMapping("/mentors/{mentorId}/mentees")
+    public ResponseEntity<List<AdminUserResponse>> getMenteesForMentor(
+            @PathVariable Long mentorId
+    ) {
+
+        return ResponseEntity.ok(adminService.getMenteesForMentor(mentorId));
+    }
+
+    @PostMapping("/assignments")
+    public ResponseEntity<Void> assignMentor(
+            @Valid @RequestBody AssignMentorRequest request
+    ) {
+
+        adminService.assignMentor(request.getMentorId(), request.getMenteeId());
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/assignments")
+    public ResponseEntity<Void> unassignMentor(
+            @Valid @RequestBody AssignMentorRequest request
+    ) {
+
+        adminService.unassignMentor(request.getMentorId(), request.getMenteeId());
+
+        return ResponseEntity.noContent().build();
     }
 
     private RoleType parseRoleName(String roleName) {

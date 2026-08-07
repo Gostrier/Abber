@@ -1,43 +1,49 @@
 package com.abber.backend.service.impl;
 
+import com.abber.backend.dto.request.CreateMentorRequest;
 import com.abber.backend.dto.response.ActivityLogResponse;
 import com.abber.backend.dto.response.AdminStatsResponse;
 import com.abber.backend.dto.response.AdminUserResponse;
-import com.abber.backend.dto.response.BusinessIdeaResponse;
-import com.abber.backend.dto.response.BusinessRoadmapResponse;
-import com.abber.backend.dto.response.MilestoneResponse;
+import com.abber.backend.dto.response.MentorProfileResponse;
 import com.abber.backend.dto.response.UserProgressResponse;
 import com.abber.backend.entity.ActivityLog;
 import com.abber.backend.entity.BusinessIdea;
 import com.abber.backend.entity.BusinessRoadmap;
-import com.abber.backend.entity.MilestoneInstance;
+import com.abber.backend.entity.MentorProfile;
+import com.abber.backend.entity.MentorshipEngagement;
 import com.abber.backend.entity.Role;
 import com.abber.backend.entity.User;
+import com.abber.backend.enums.EngagementStatus;
 import com.abber.backend.enums.ExecutionStage;
 import com.abber.backend.enums.MilestoneStatus;
 import com.abber.backend.enums.RoleType;
 import com.abber.backend.exception.ResourceNotFoundException;
+import com.abber.backend.mapper.MentorMapper;
+import com.abber.backend.mapper.UserStatsMapper;
 import com.abber.backend.repository.BusinessIdeaRepository;
+import com.abber.backend.repository.MentorRepository;
+import com.abber.backend.repository.MentorshipEngagementRepository;
 import com.abber.backend.repository.MilestoneInstanceRepository;
 import com.abber.backend.repository.RoadmapRepository;
 import com.abber.backend.repository.RoleRepository;
 import com.abber.backend.repository.UserRepository;
 import com.abber.backend.service.interfaces.ActivityLogService;
 import com.abber.backend.service.interfaces.AdminService;
+import com.abber.backend.service.interfaces.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,6 +57,12 @@ public class AdminServiceImpl implements AdminService {
     private final MilestoneInstanceRepository milestoneRepository;
     private final RoleRepository roleRepository;
     private final ActivityLogService activityLogService;
+    private final PasswordEncoder passwordEncoder;
+    private final UserStatsMapper userStatsMapper;
+    private final MentorRepository mentorRepository;
+    private final MentorMapper mentorMapper;
+    private final MentorshipEngagementRepository engagementRepository;
+    private final EmailService emailService;
 
     @Override
     public AdminStatsResponse getStats() {
@@ -162,7 +174,7 @@ public class AdminServiceImpl implements AdminService {
                 .toList();
 
         return users.stream()
-                .map(this::toAdminUserResponse)
+                .map(userStatsMapper::toAdminUserResponse)
                 .toList();
     }
 
@@ -171,39 +183,7 @@ public class AdminServiceImpl implements AdminService {
 
         User user = requireUser(userId);
 
-        List<BusinessIdea> ideas = businessIdeaRepository
-                .findByMenteeAndIsArchivedFalseOrderByCreatedAtDesc(user);
-
-        List<UserProgressResponse.IdeaProgress> ideaProgress = ideas.stream()
-                .map(this::toIdeaProgress)
-                .toList();
-
-        long totalMilestones = ideaProgress.stream()
-                .flatMap(ip -> ip.roadmap() == null ? java.util.stream.Stream.empty()
-                        : ip.roadmap().getMilestones().stream())
-                .count();
-
-        long completedMilestones = ideaProgress.stream()
-                .flatMap(ip -> ip.roadmap() == null ? java.util.stream.Stream.empty()
-                        : ip.roadmap().getMilestones().stream())
-                .filter(m -> m.getStatus() == MilestoneStatus.COMPLETED)
-                .count();
-
-        BigDecimal overallProgress = totalMilestones == 0
-                ? BigDecimal.ZERO
-                : BigDecimal.valueOf(completedMilestones)
-                        .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(totalMilestones), 2, RoundingMode.HALF_UP);
-
-        return UserProgressResponse.builder()
-                .userId(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .roles(user.getRoleNames())
-                .overallProgress(overallProgress)
-                .ideas(ideaProgress)
-                .build();
+        return userStatsMapper.toUserProgressResponse(user);
     }
 
     @Override
@@ -230,6 +210,15 @@ public class AdminServiceImpl implements AdminService {
             user.addRole(role);
             userRepository.save(user);
 
+            if (mentorRepository.findByUserId(userId).isEmpty()) {
+                mentorRepository.save(MentorProfile.builder()
+                        .user(user)
+                        .specialty("Startup Mentor")
+                        .isAvailable(true)
+                        .isFeatured(false)
+                        .build());
+            }
+
             activityLogService.record(
                     user.getEmail(),
                     "Mentor privilege granted",
@@ -249,74 +238,194 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
+    @Override
+    @Transactional
+    public MentorProfileResponse createMentor(CreateMentorRequest request) {
+
+        String email = request.getEmail().trim().toLowerCase();
+
+        if (userRepository.existsByEmailIgnoreCase(email)) {
+            throw new IllegalArgumentException(
+                    "A user with email " + email + " is already registered."
+            );
+        }
+
+        Role mentorRole = roleRepository.findByRoleName(RoleType.ROLE_MENTOR)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Role 'ROLE_MENTOR' was not found."
+                ));
+
+        User mentor = User.builder()
+                .uuid(UUID.randomUUID())
+                .firstName(request.getFirstName().trim())
+                .lastName(request.getLastName().trim())
+                .email(email)
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .isActive(true)
+                .emailVerified(true)
+                .county(request.getCounty())
+                .town(request.getTown())
+                .build();
+
+        mentor.addRole(mentorRole);
+
+        userRepository.save(mentor);
+
+        String location = request.getLocation();
+
+        if (location == null || location.isBlank()) {
+            StringBuilder sb = new StringBuilder();
+            if (request.getCounty() != null && !request.getCounty().isBlank()) {
+                sb.append(request.getCounty());
+            }
+            if (request.getTown() != null && !request.getTown().isBlank()) {
+                if (sb.length() > 0) {
+                    sb.append(", ");
+                }
+                sb.append(request.getTown());
+            }
+            location = sb.toString();
+        }
+
+        MentorProfile profile = mentorRepository.save(MentorProfile.builder()
+                .user(mentor)
+                .specialty(request.getSpecialty() == null
+                        ? "Startup Mentor"
+                        : request.getSpecialty().trim())
+                .bio(request.getBio())
+                .yearsOfExperience(request.getYearsOfExperience())
+                .company(request.getCompany())
+                .location(location)
+                .isAvailable(true)
+                .isFeatured(Boolean.TRUE.equals(request.getIsFeatured()))
+                .build());
+
+        activityLogService.record(
+                email,
+                "Mentor added",
+                "Added " + mentor.getFirstName() + " " + mentor.getLastName()
+                        + " as a mentor (" + profile.getSpecialty() + ")."
+        );
+
+        emailService.sendMentorInvitation(
+                email,
+                "Abber Admin",
+                "https://abber.netlify.app/login"
+        );
+
+        return mentorMapper.toResponse(profile);
+    }
+
+    @Override
+    public List<MentorProfileResponse> getMentors() {
+
+        return mentorRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(mentorMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public MentorProfileResponse getMentor(Long mentorUserId) {
+
+        MentorProfile profile = requireMentorProfile(mentorUserId);
+
+        return mentorMapper.toResponse(profile);
+    }
+
+    @Override
+    public List<AdminUserResponse> getMenteesForMentor(Long mentorUserId) {
+
+        requireMentorProfile(mentorUserId);
+
+        return engagementRepository.findByMentorId(mentorUserId)
+                .stream()
+                .filter(e -> e.getStatus() == EngagementStatus.ACTIVE)
+                .map(MentorshipEngagement::getMentee)
+                .map(userStatsMapper::toAdminUserResponse)
+                .sorted(Comparator.comparing(AdminUserResponse::createdAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void assignMentor(Long mentorUserId, Long menteeUserId) {
+
+        User mentor = requireUser(mentorUserId);
+
+        User mentee = requireUser(menteeUserId);
+
+        if (mentorUserId.equals(menteeUserId)) {
+            throw new IllegalArgumentException(
+                    "A mentor cannot be assigned to themselves."
+            );
+        }
+
+        if (!mentor.getRoleNames().contains(RoleType.ROLE_MENTOR.name())) {
+            throw new IllegalArgumentException(
+                    "The selected user is not a mentor."
+            );
+        }
+
+        if (mentee.getRoleNames().contains(RoleType.ROLE_ADMIN.name())) {
+            throw new IllegalArgumentException(
+                    "Administrators cannot be assigned as mentees."
+            );
+        }
+
+        engagementRepository.findByMentorIdAndMenteeId(mentorUserId, menteeUserId)
+                .ifPresentOrElse(
+                        engagement -> {
+                            engagement.setStatus(EngagementStatus.ACTIVE);
+                            engagementRepository.save(engagement);
+                        },
+                        () -> engagementRepository.save(MentorshipEngagement.builder()
+                                .mentor(mentor)
+                                .mentee(mentee)
+                                .status(EngagementStatus.ACTIVE)
+                                .build())
+                );
+
+        activityLogService.record(
+                mentor.getEmail(),
+                "Mentor assigned",
+                "Assigned " + mentor.getFirstName() + " " + mentor.getLastName()
+                        + " as the mentor of " + mentee.getFirstName() + " " + mentee.getLastName()
+        );
+    }
+
+    @Override
+    @Transactional
+    public void unassignMentor(Long mentorUserId, Long menteeUserId) {
+
+        MentorProfile profile = requireMentorProfile(mentorUserId);
+
+        MentorshipEngagement engagement = engagementRepository
+                .findByMentorIdAndMenteeId(mentorUserId, menteeUserId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No mentorship assignment found between the given mentor and mentee."
+                ));
+
+        engagement.setStatus(EngagementStatus.COMPLETED);
+        engagementRepository.save(engagement);
+
+        User mentor = profile.getUser();
+        User mentee = engagement.getMentee();
+
+        activityLogService.record(
+                mentor.getEmail(),
+                "Mentor assignment removed",
+                "Removed " + mentee.getFirstName() + " " + mentee.getLastName()
+                        + " from " + mentor.getFirstName() + " " + mentor.getLastName() + "'s mentees."
+        );
+    }
+
     private long countByRole(List<User> users, RoleType role) {
 
         return users.stream()
                 .filter(u -> u.getRoleNames().contains(role.name()))
                 .count();
-    }
-
-    private AdminUserResponse toAdminUserResponse(User user) {
-
-        List<BusinessIdea> ideas = businessIdeaRepository
-                .findByMenteeAndIsArchivedFalseOrderByCreatedAtDesc(user);
-
-        long totalMilestones = 0;
-        long completedMilestones = 0;
-
-        if (!ideas.isEmpty()) {
-
-            List<Long> ideaIds = ideas.stream()
-                    .map(BusinessIdea::getId)
-                    .toList();
-
-            List<Long> roadmapIds = roadmapRepository
-                    .findByBusinessIdeaIdIn(ideaIds)
-                    .stream()
-                    .map(BusinessRoadmap::getId)
-                    .toList();
-
-            if (!roadmapIds.isEmpty()) {
-
-                totalMilestones = milestoneRepository.countByRoadmapIdIn(roadmapIds);
-                completedMilestones = milestoneRepository
-                        .countByRoadmapIdInAndStatus(roadmapIds, MilestoneStatus.COMPLETED);
-            }
-        }
-
-        BigDecimal progress = totalMilestones == 0
-                ? BigDecimal.ZERO
-                : BigDecimal.valueOf(completedMilestones)
-                        .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(totalMilestones), 2, RoundingMode.HALF_UP);
-
-        return AdminUserResponse.builder()
-                .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .roles(user.getRoleNames())
-                .isActive(user.getIsActive())
-                .emailVerified(user.getEmailVerified())
-                .lastLoginAt(user.getLastLoginAt())
-                .createdAt(user.getCreatedAt())
-                .ideasCount(ideas.size())
-                .totalMilestones(totalMilestones)
-                .completedMilestones(completedMilestones)
-                .progress(progress)
-                .build();
-    }
-
-    private UserProgressResponse.IdeaProgress toIdeaProgress(BusinessIdea idea) {
-
-        BusinessRoadmap roadmap = roadmapRepository
-                .findByBusinessIdeaId(idea.getId())
-                .orElse(null);
-
-        return UserProgressResponse.IdeaProgress.builder()
-                .idea(toIdeaResponse(idea))
-                .roadmap(roadmap == null ? null : toRoadmapResponse(roadmap))
-                .build();
     }
 
     private ActivityLogResponse toActivityLogResponse(ActivityLog log) {
@@ -339,56 +448,11 @@ public class AdminServiceImpl implements AdminService {
                 ));
     }
 
-    private BusinessIdeaResponse toIdeaResponse(BusinessIdea idea) {
+    private MentorProfile requireMentorProfile(Long mentorUserId) {
 
-        return BusinessIdeaResponse.builder()
-                .id(idea.getId())
-                .title(idea.getTitle())
-                .elevatorPitch(idea.getElevatorPitch())
-                .detailedDescription(idea.getDetailedDescription())
-                .targetMarket(idea.getTargetMarket())
-                .uniqueValueProposition(idea.getUniqueValueProposition())
-                .executionStage(idea.getExecutionStage())
-                .estimatedStartupCost(idea.getEstimatedStartupCost())
-                .projectedMonthlyRevenue(idea.getProjectedMonthlyRevenue())
-                .projectedMonthlyExpenses(idea.getProjectedMonthlyExpenses())
-                .isPublicShowcase(idea.getIsPublicShowcase())
-                .isArchived(idea.getIsArchived())
-                .createdAt(idea.getCreatedAt())
-                .updatedAt(idea.getUpdatedAt())
-                .build();
+        return mentorRepository.findByUserId(mentorUserId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Mentor profile not found for user id: " + mentorUserId
+                ));
     }
-
-    private BusinessRoadmapResponse toRoadmapResponse(BusinessRoadmap roadmap) {
-
-        return BusinessRoadmapResponse.builder()
-                .id(roadmap.getId())
-                .businessIdeaId(roadmap.getBusinessIdea().getId())
-                .overallCompletionPercentage(roadmap.getOverallCompletionPercentage())
-                .currentPhase(roadmap.getCurrentPhase())
-                .startedAt(roadmap.getStartedAt())
-                .expectedCompletionDate(roadmap.getExpectedCompletionDate())
-                .completedAt(roadmap.getCompletedAt())
-                .lastActivityAt(roadmap.getLastActivityAt())
-                .milestones(roadmap.getMilestones()
-                        .stream()
-                        .map(this::toMilestoneResponse)
-                        .toList())
-                .build();
-    }
-
-    private MilestoneResponse toMilestoneResponse(MilestoneInstance milestone) {
-
-        return MilestoneResponse.builder()
-                .id(milestone.getId())
-                .sequenceOrder(milestone.getSequenceOrder())
-                .taskTitle(milestone.getTaskTitle())
-                .taskDescription(milestone.getTaskDescription())
-                .status(milestone.getStatus())
-                .mentorNotes(milestone.getMentorNotes())
-                .dueDate(milestone.getDueDate())
-                .completedAt(milestone.getCompletedAt())
-                .build();
-    }
-
 }
