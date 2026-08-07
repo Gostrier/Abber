@@ -8,6 +8,7 @@ import Input from "../../../components/ui/Input";
 import PasswordInput from "../../../components/ui/PasswordInput";
 import Button from "../../../components/ui/Button";
 import { useAuth } from "../../../context/AuthContext";
+import { getRoleHome } from "../../../utils/roleNavigation";
 
 type LoginForm = {
   email: string;
@@ -26,9 +27,9 @@ const LoginPage = () => {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      await login(data);
+      const response = await login(data);
       toast.success("Welcome back!");
-      navigate("/dashboard");
+      navigate(getRoleHome(response?.roles ?? []));
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Invalid email or password.";
       toast.error(msg);

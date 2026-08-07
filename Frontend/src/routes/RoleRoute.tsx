@@ -2,6 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
 import Spinner from "../components/ui/Spinner";
+import { getRoleHome } from "../utils/roleNavigation";
 
 interface RoleRouteProps {
     roles: string[];
@@ -36,7 +37,7 @@ const RoleRoute = ({ roles }: RoleRouteProps) => {
 
     if (!hasRole) {
 
-        return <Navigate to="/dashboard" replace />;
+        return <Navigate to={getRoleHome(user?.roles ?? [])} replace />;
 
     }
 

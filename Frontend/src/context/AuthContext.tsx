@@ -48,7 +48,7 @@ interface AuthContextType {
     authenticated: boolean;
     loading: boolean;
 
-    login: (request: LoginRequest) => Promise<void>;
+    login: (request: LoginRequest) => Promise<AuthResponse>;
     register: (request: RegisterRequest) => Promise<void>;
     logout: () => Promise<void>;
     refreshProfile: () => Promise<void>;
@@ -149,6 +149,8 @@ export const AuthProvider = ({ children }: Props) => {
             lastName: response.lastName,
             roles: response.roles ?? [],
         });
+
+        return response;
     };
 
     const register = async (
