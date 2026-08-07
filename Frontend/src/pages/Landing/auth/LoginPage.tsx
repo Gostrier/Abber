@@ -93,6 +93,15 @@ const LoginPage = () => {
             Create one
           </Link>
         </div>
+
+        <div className="mt-6 text-center text-lg text-gray-500">
+          <Link
+            to="/admin/login"
+            className="text-primary font-semibold hover:underline"
+          >
+            Admin? Sign in here
+          </Link>
+        </div>
       </AuthCard>
     </AuthLayout>
   );

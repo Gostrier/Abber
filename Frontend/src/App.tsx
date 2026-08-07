@@ -20,6 +20,7 @@ import LoginPage from "./pages/Landing/auth/LoginPage";
 import RegisterPage from "./pages/Landing/auth/RegisterPage";
 import ForgotPasswordPage from "./pages/Landing/auth/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/Landing/auth/ResetPasswordPage";
+import AdminLoginPage from "./pages/Admin/AdminLoginPage";
 
 import NotFoundPage from "./pages/errors/NotFoundPage";
 import ErrorBoundary from "./components/common/ErrorBoundary";
@@ -88,6 +89,11 @@ function App() {
                         <Route
                             path="/reset-password"
                             element={<ResetPasswordPage />}
+                        />
+
+                        <Route
+                            path="/admin/login"
+                            element={<AdminLoginPage />}
                         />
 
                     </Route>
