@@ -103,10 +103,10 @@ const Footer = () => {
 
                 <p>© 2026 Abber. All rights reserved.{" "}
                     <Link
-                        to="/admin"
+                        to="/admin/login"
                         className="text-slate-500 hover:text-white transition-colors font-medium"
                     >
-                        — Make it real.
+                        Admin portal
                     </Link>
                 </p>
 

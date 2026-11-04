@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { isAxiosError } from "axios";
 import {
   Lightbulb,
   Plus,
@@ -63,6 +64,8 @@ const IdeasPage = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [roadmap, setRoadmap] = useState<BusinessRoadmap | null>(null);
   const [roadmapLoading, setRoadmapLoading] = useState(false);
+  const [roadmapError, setRoadmapError] = useState<string | null>(null);
+  const [roadmapRetry, setRoadmapRetry] = useState(0);
 
   const [showAddMilestone, setShowAddMilestone] = useState(false);
   const [taskTitle, setTaskTitle] = useState("");
@@ -84,17 +87,42 @@ const IdeasPage = () => {
   useEffect(() => {
     if (selectedId === null) {
       setRoadmap(null);
+      setRoadmapError(null);
       return;
     }
 
+    let cancelled = false;
+    setRoadmap(null);
+    setRoadmapError(null);
     setRoadmapLoading(true);
     setShowAddMilestone(false);
 
     getRoadmap(selectedId)
-      .then((data) => setRoadmap(data))
-      .catch(() => setRoadmap(null))
-      .finally(() => setRoadmapLoading(false));
-  }, [selectedId]);
+      .then((data) => {
+        if (!cancelled) setRoadmap(data);
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+
+        if (isAxiosError(err) && err.response?.status === 404) {
+          setRoadmap(null);
+          return;
+        }
+
+        setRoadmapError(
+          isAxiosError(err)
+            ? err.response?.data?.message || "Could not load this roadmap. Please try again."
+            : "Could not load this roadmap. Please try again."
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setRoadmapLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId, roadmapRetry]);
 
   const handleAddMilestone = async () => {
     if (!roadmap) return;
@@ -212,6 +240,8 @@ const IdeasPage = () => {
               return (
                 <button
                   key={idea.id}
+                  type="button"
+                  aria-pressed={selected}
                   onClick={() => setSelectedId(idea.id)}
                   className={`w-full rounded-2xl border p-6 text-left transition-all ${
                     selected
@@ -243,6 +273,19 @@ const IdeasPage = () => {
             ) : roadmapLoading ? (
               <Card className="border-white/10 bg-white/10 backdrop-blur-xl p-12 text-center">
                 <Loader2 className="mx-auto animate-spin text-blue-300" size={40} />
+              </Card>
+            ) : roadmapError ? (
+              <Card className="border-red-400/30 bg-red-500/10 p-8 text-center">
+                <AlertTriangle className="mx-auto text-red-300" size={36} />
+                <p role="alert" className="mt-4 text-lg text-red-200">{roadmapError}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-6"
+                  onClick={() => setRoadmapRetry((attempt) => attempt + 1)}
+                >
+                  Try again
+                </Button>
               </Card>
             ) : roadmap ? (
               <Card className="border-white/10 bg-white/10 backdrop-blur-xl p-8 lg:p-10">
@@ -277,7 +320,12 @@ const IdeasPage = () => {
                           key={milestone.id}
                           className="flex items-center gap-5 rounded-xl border border-white/10 bg-white/5 p-5"
                         >
-                          <button onClick={() => handleToggleComplete(milestone)} aria-label="Toggle milestone">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleComplete(milestone)}
+                            aria-label={`${done ? "Reopen" : "Complete"} milestone: ${milestone.taskTitle}`}
+                            aria-pressed={done}
+                          >
                             {done ? (
                               <CheckCircle2 className="text-green-400" size={28} />
                             ) : (

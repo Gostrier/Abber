@@ -60,6 +60,11 @@ const MainLayout = () => {
   const displayName =
     [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
     (user?.email ? user.email.split("@")[0] : "User");
+  const accountType = roles.includes("ROLE_ADMIN")
+    ? "Administrator"
+    : roles.includes("ROLE_MENTOR")
+      ? "Mentor"
+      : "Startup Founder";
 
   const handleLogout = async () => {
     await logout();
@@ -84,23 +89,29 @@ const MainLayout = () => {
             {!collapsed && <AbberBrandText size="md" />}
           </div>
           <button
+            type="button"
             onClick={() => setCollapsed(!collapsed)}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-pressed={collapsed}
             className="rounded-xl p-2.5 text-blue-200 transition-all hover:bg-white/10 hover:text-white"
           >
             {collapsed ? <PanelLeftOpen size={22} /> : <PanelLeftClose size={22} />}
           </button>
         </div>
 
-        <nav className={`mt-8 space-y-2 ${collapsed ? "px-3" : "px-6"}`}>
+        <nav aria-label="User navigation" className={`mt-8 space-y-2 ${collapsed ? "px-3" : "px-6"}`}>
           {sidebarLinks.map((link) => {
             const Icon = link.icon;
-            const active = location.pathname === link.href;
+            const active =
+              location.pathname === link.href ||
+              location.pathname.startsWith(`${link.href}/`);
             return (
               <Link
                 key={link.href}
                 to={link.href}
                 onClick={() => setSidebarOpen(false)}
+                aria-current={active ? "page" : undefined}
                 title={collapsed ? link.label : undefined}
                 className={`flex items-center gap-4 rounded-xl px-5 py-4 text-base font-medium transition-all ${
                   collapsed ? "justify-center px-3" : ""
@@ -144,7 +155,10 @@ const MainLayout = () => {
         {/* Top Bar */}
         <header className="sticky top-0 z-20 flex h-24 items-center justify-between border-b border-white/10 bg-white/5 backdrop-blur-2xl px-8">
           <button
+            type="button"
             onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label={sidebarOpen ? "Close navigation" : "Open navigation"}
+            aria-expanded={sidebarOpen}
             className="lg:hidden rounded-xl p-3 text-blue-200 hover:bg-white/10"
           >
             {sidebarOpen ? <X size={28} /> : <Menu size={28} />}
@@ -168,7 +182,7 @@ const MainLayout = () => {
                   <p className="text-base font-semibold text-white">
                     {displayName}
                   </p>
-                  <p className="text-sm text-blue-200">Startup Founder</p>
+                  <p className="text-sm text-blue-200">{accountType}</p>
                 </div>
                 <ChevronDown size={20} className="text-blue-300" />
               </button>
@@ -179,7 +193,7 @@ const MainLayout = () => {
                   <div className="absolute right-0 top-16 z-20 w-64 rounded-2xl border border-white/10 bg-slate-900 p-3 shadow-xl backdrop-blur-2xl">
                     <div className="border-b border-white/10 px-4 py-4">
                       <p className="text-base font-semibold text-white">{user?.email || "User"}</p>
-                      <p className="text-sm text-blue-200">Startup Founder</p>
+                      <p className="text-sm text-blue-200">{accountType}</p>
                     </div>
                     <Link
                       to="/settings"

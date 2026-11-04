@@ -114,6 +114,9 @@ const Navbar = () => {
                 {/* Mobile */}
 
                 <button
+                    type="button"
+                    aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+                    aria-expanded={mobileOpen}
                     onClick={() =>
                         setMobileOpen(!mobileOpen)
                     }

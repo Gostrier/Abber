@@ -366,35 +366,6 @@ const DashboardPage = () => {
           </Card>
         </motion.div>
 
-        {/* Startup Stages */}
-        <motion.div variants={itemAnim}>
-          <h2 className="text-3xl font-bold text-white mb-8">Startup Lifecycle Stages</h2>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {startupStages.map((stage) => {
-              const Icon = stage.icon;
-              return (
-                <motion.div
-                  key={stage.label}
-                  whileHover={{ y: -10, scale: 1.04 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  <Link
-                    to={stage.href}
-                    className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl transition-all hover:bg-white/20 block h-full"
-                  >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${stage.color} opacity-0 group-hover:opacity-20 transition-opacity`} />
-                    <div className={`inline-flex rounded-xl bg-gradient-to-br ${stage.color} p-4 text-white`}>
-                      <Icon size={28} />
-                    </div>
-                    <h3 className="mt-5 text-xl font-bold text-white">{stage.label}</h3>
-                    <p className="mt-2 text-base text-blue-200">{stage.desc}</p>
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
-
         <div className="grid gap-10 lg:grid-cols-3">
           {/* Quick Actions + Activity */}
           <motion.div variants={itemAnim} className="lg:col-span-2 space-y-10">
@@ -405,7 +376,7 @@ const DashboardPage = () => {
                   { label: "New Business Idea", icon: Lightbulb, href: "/stages/idea", color: "text-blue-400 bg-blue-500/20" },
                   { label: "My Ideas", icon: BookOpen, href: "/ideas", color: "text-violet-400 bg-violet-500/20" },
                   { label: "Community Chat", icon: MessageSquare, href: "/chat", color: "text-emerald-400 bg-emerald-500/20" },
-                  { label: "Milestone Tracker", icon: Award, href: "/stages/idea", color: "text-amber-400 bg-amber-500/20" },
+                  { label: "Milestone Tracker", icon: Award, href: "/ideas", color: "text-amber-400 bg-amber-500/20" },
                 ].map((action) => {
                   const Icon = action.icon;
                   return (

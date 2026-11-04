@@ -13,6 +13,7 @@ import PublicRoute from "./routes/PublicRoute";
 import RoleRoute from "./routes/RoleRoute";
 
 import MainLayout from "./layouts/Mainlayout";
+import AdminLayout from "./layouts/AdminLayout";
 
 import LandingPage from "./pages/Landing/LandingPage";
 
@@ -105,7 +106,7 @@ function App() {
                         {/* Admin */}
                         <Route element={<RoleRoute roles={["ROLE_ADMIN"]} />}>
 
-                            <Route element={<MainLayout />}>
+                            <Route element={<AdminLayout />}>
 
                                 <Route
                                     path="/admin"
