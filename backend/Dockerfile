@@ -12,5 +12,5 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8081
 
-# Accept either Render-style DATABASE_URL or the app's DB_URL env vars.
-ENTRYPOINT ["/bin/sh", "-c", "DB_SOURCE=${DB_URL:-${DATABASE_URL:-}}; if [ -n \"$DB_SOURCE\" ]; then JAVA_DB_URL=$(printf '%s' \"$DB_SOURCE\" | sed -E 's|^postgres(ql)?://|jdbc:postgresql://|'); else JAVA_DB_URL=jdbc:postgresql://localhost:5432/abber; fi; exec java -Dspring.datasource.url=\"$JAVA_DB_URL\" -jar app.jar"]
+# Render provides a postgres:// URL; normalize it for the PostgreSQL JDBC driver.
+ENTRYPOINT ["/bin/sh", "-c", "DATABASE_URL=${DATABASE_URL:?DATABASE_URL is required}; JAVA_DB_URL=$(printf '%s' \"$DATABASE_URL\" | sed -E 's|^postgres(ql)?://|jdbc:postgresql://|'); exec java -Dspring.datasource.url=\"$JAVA_DB_URL\" -jar app.jar"]
