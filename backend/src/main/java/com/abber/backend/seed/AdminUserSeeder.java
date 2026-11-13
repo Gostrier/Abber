@@ -51,9 +51,11 @@ public class AdminUserSeeder implements CommandLineRunner {
             return;
         }
 
+        ensureRequiredRoles();
+
         Role adminRole = roleRepository.findByRoleName(RoleType.ROLE_ADMIN)
                 .orElseThrow(() ->
-                        new IllegalStateException("ROLE_ADMIN role not found."));
+                        new IllegalStateException("ROLE_ADMIN role not found after seeding."));
 
         User admin = User.builder()
                 .uuid(UUID.randomUUID())
@@ -70,5 +72,13 @@ public class AdminUserSeeder implements CommandLineRunner {
         userRepository.save(admin);
 
         log.info("Seeded default admin user: {}", email);
+    }
+
+    private void ensureRequiredRoles() {
+        for (RoleType roleType : RoleType.values()) {
+            if (!roleRepository.existsByRoleName(roleType)) {
+                roleRepository.save(Role.builder().roleName(roleType).build());
+            }
+        }
     }
 }
